@@ -11,6 +11,7 @@ from keras.layers import Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Flatten
 # from keras.layers.convolutional import Conv2D
 # from keras.layers.convolutional import MaxPooling2D
+from keras.utils import np_utils
 from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
 from keras import backend as K
