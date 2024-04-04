@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import pickle, os, cv2
 
-tf.logging.set_verbosity(tf.logging.INFO)
+# tf.logging.set_verbosity(tf.logging.INFO)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def get_image_size():
@@ -111,4 +111,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-	tf.app.run()
+	tf.compat.v1.app.run()
