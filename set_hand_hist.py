@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 def build_squares(img):
-	x, y, w, h = 420, 140, 10, 10
+	x, y, w, h = 200, 50, 400, 400
 	d = 10
 	imgCrop = None
 	crop = None
@@ -18,7 +18,7 @@ def build_squares(img):
 			x+=w+d
 		if np.any(crop == None):
 			crop = imgCrop
-		else:
+		elif imgCrop.shape[1] == crop.shape[1]:
 			crop = np.vstack((crop, imgCrop)) 
 		imgCrop = None
 		x = 420
@@ -26,7 +26,7 @@ def build_squares(img):
 	return crop
 
 def get_hand_hist():
-	cam = cv2.VideoCapture(1)
+	cam = cv2.VideoCapture(0)
 	if cam.read()[0]==False:
 		cam = cv2.VideoCapture(0)
 	x, y, w, h = 300, 100, 300, 300
@@ -54,7 +54,12 @@ def get_hand_hist():
 			cv2.filter2D(dst,-1,disc,dst)
 			blur = cv2.GaussianBlur(dst, (11,11), 0)
 			blur = cv2.medianBlur(blur, 15)
-			ret,thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+			#replaced next 4 lines
+			thresh = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
+			kernel = np.ones((3,3),np.uint8)
+			thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 2)
+			thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations = 2)
+
 			thresh = cv2.merge((thresh,thresh,thresh))
 			#cv2.imshow("res", res)
 			cv2.imshow("Thresh", thresh)

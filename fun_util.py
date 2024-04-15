@@ -95,7 +95,12 @@ def get_img_contour_thresh(img):
 	cv2.filter2D(dst,-1,disc,dst)
 	blur = cv2.GaussianBlur(dst, (11,11), 0)
 	blur = cv2.medianBlur(blur, 15)
-	thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
+	# thresh = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
+#replaced next 4 lines
+	thresh = cv2.adaptiveThreshold(blur,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,11,2)
+	kernel = np.ones((3,3),np.uint8)
+	thresh = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations = 2)
+	thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations = 2)
 	thresh = cv2.merge((thresh,thresh,thresh))
 	thresh = cv2.cvtColor(thresh, cv2.COLOR_BGR2GRAY)
 	thresh = thresh[y:y+h, x:x+w]

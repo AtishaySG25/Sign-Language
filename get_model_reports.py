@@ -95,6 +95,7 @@ pred_labels = []
 
 start_time = time.time()
 pred_probabs = model.predict(test_images)
+
 end_time = time.time()
 pred_time = end_time-start_time
 avg_pred_time = pred_time/test_images.shape[0]
@@ -110,3 +111,10 @@ print('\n\nClassification Report')
 print('---------------------------')
 print(classification_report)
 plot_confusion_matrix(cm, range(44), normalize=False)
+
+from keras.utils import to_categorical
+
+# Assuming test_labels is a numpy array of integers
+test_labels_one_hot = to_categorical(test_labels, num_classes=44)
+# model.evaluate(test_images, test_labels)
+model.evaluate(test_images, test_labels_one_hot)

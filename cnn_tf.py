@@ -69,13 +69,25 @@ def cnn_model_fn(features, labels, mode):
 	loss_fn = tf.keras.losses.CategoricalCrossentropy()
 	loss = loss_fn(onehot_labels, logits)
 
-	# Configure the Training Op (for TRAIN mode)
+	# # Configure the Training Op (for TRAIN mode)
+	# if mode == tf.estimator.ModeKeys.TRAIN:
+	# 	# optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
+	# 	# # train_op = optimizer.minimize(loss=loss, global_step=tf.train.get_global_step())
+	# 	# train_op = optimizer.minimize(loss=loss, var_list=tf.compat.v1.trainable_variables())
+	# 	optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
+	# 	with tf.GradientTape() as tape:
+	# 		grads = tape.gradient(loss, tf.compat.v1.trainable_variables())
+	# 	train_op = optimizer.apply_gradients(zip(grads, tf.compat.v1.trainable_variables()))
+	# 	return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+ 
 	if mode == tf.estimator.ModeKeys.TRAIN:
-		# optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
-		# # train_op = optimizer.minimize(loss=loss, global_step=tf.train.get_global_step())
-		# train_op = optimizer.minimize(loss=loss, var_list=tf.compat.v1.trainable_variables())
 		optimizer = tf.keras.optimizers.SGD(learning_rate=1e-2)
 		with tf.GradientTape() as tape:
+			# Move the forward pass operations into the GradientTape context
+			logits = tf.keras.layers.Dense(units=num_of_classes, name="logits")(dropout)
+			onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=num_of_classes)
+			loss_fn = tf.keras.losses.CategoricalCrossentropy()
+			loss = loss_fn(onehot_labels, logits)
 			grads = tape.gradient(loss, tf.compat.v1.trainable_variables())
 		train_op = optimizer.apply_gradients(zip(grads, tf.compat.v1.trainable_variables()))
 		return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
@@ -89,12 +101,15 @@ def main(argv):
 		train_images = np.array(pickle.load(f))
 	with open("train_labels", "rb") as f:
 		train_labels = np.array(pickle.load(f), dtype=np.int32)
+	print("Number of training images:", len(train_images))
+	print("Number of training labels:", len(train_labels))
 
 	with open("test_images", "rb") as f:
 		test_images = np.array(pickle.load(f))
 	with open("test_labels", "rb") as f:
 		test_labels = np.array(pickle.load(f), dtype=np.int32)
-	#print(len(train_images[1]), len(train_labels))
+	print(len(train_images[1]), len(train_labels))
+	print(len(test_images), len(test_labels))
 
 	classifier = tf.estimator.Estimator(model_fn=cnn_model_fn, model_dir="tmp/cnn_model3")
 
